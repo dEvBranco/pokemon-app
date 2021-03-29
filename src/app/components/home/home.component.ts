@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Pokemon, PokemonResult } from 'src/app/models/pokemon.interface';
+import { pluck, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -6,10 +9,28 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+  public urlIdLookup: any;
+  public pokemons: PokemonResult[];
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
+    this.initPokemonData();
+  }
+
+  private initPokemonData(): void {
+    this.http.get<Pokemon>('https://pokeapi.co/api/v2/pokemon?offset=0')
+    .pipe(
+      pluck('results'),
+      tap((results: PokemonResult[]) => {
+        this.urlIdLookup = results.reduce(
+          (acc, cur, idx) => (acc = { ...acc, [cur.name]: idx + 1 }),
+          {}
+        );
+      })
+    ).subscribe((data: PokemonResult[]) => {
+      this.pokemons = data;
+    });
   }
 
 }
