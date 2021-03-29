@@ -11,6 +11,9 @@ import { pluck, tap } from 'rxjs/operators';
 export class HomeComponent implements OnInit {
   public urlIdLookup: any;
   public pokemons: PokemonResult[];
+  public text: string;
+  public filteredPokemon: PokemonResult[];
+  public results: PokemonResult[];
 
   constructor(private http: HttpClient) { }
 
@@ -29,8 +32,14 @@ export class HomeComponent implements OnInit {
         );
       })
     ).subscribe((data: PokemonResult[]) => {
-      this.pokemons = data;
+      this.pokemons = this.filteredPokemon = data;
     });
+  }
+
+  public onChange(updatedValue: string): void {
+    console.log(this.filteredPokemon);
+
+    this.filteredPokemon = this.pokemons.filter((pokemon) => pokemon.name.includes(updatedValue));
   }
 
 }
